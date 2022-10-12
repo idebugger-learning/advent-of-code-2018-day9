@@ -1,3 +1,71 @@
+#[derive(Debug)]
+struct GameState {
+    marbles: Vec<u64>,
+    current_marble: usize,
+    current_marble_value: u64,
+    players: Vec<u64>,
+    current_player: usize,
+}
+
+impl GameState {
+    fn new(players: usize) -> Self {
+        GameState {
+            marbles: vec![0],
+            current_marble: 0,
+            current_marble_value: 1,
+            players: vec![0; players],
+            current_player: 0,
+        }
+    }
+
+    pub fn step(&mut self) {
+        if self.current_marble_value % 23 == 0 {
+            self.add_scores();
+        } else {
+            self.insert_marble();
+        };
+
+        self.current_player = (self.current_player + 1) % self.players.len();
+        self.current_marble_value += 1;
+    }
+
+    fn insert_marble(&mut self) {
+        let insert_location = ((self.current_marble + 1) % self.marbles.len()) + 1;
+        self.marbles
+            .insert(insert_location, self.current_marble_value);
+        self.current_marble = insert_location;
+    }
+
+    fn add_scores(&mut self) {
+        let mut scores_to_add = self.current_marble_value as u64;
+
+        let marble_to_remove = (self.current_marble + self.marbles.len() - 7) % self.marbles.len();
+        let removed_marble = self.marbles.remove(marble_to_remove);
+
+        scores_to_add += removed_marble;
+        self.players[self.current_player] += scores_to_add;
+
+        self.current_marble = marble_to_remove % self.marbles.len();
+    }
+}
+
 fn main() {
-    println!("Hello, world!");
+    run_game(439, 71307);
+}
+
+fn run_game(players: usize, max_steps: u64) -> GameState {
+    let mut state = GameState::new(players);
+
+    for _ in 0..max_steps {
+        state.step();
+    }
+
+    println!("Marbles: {:?}", state.marbles);
+    println!("Current: {:?}", state.current_marble);
+    println!("Player: {:?}", state.current_player);
+    println!("Players: {:?}", state.players);
+    println!();
+    println!("Max score: {}", state.players.iter().max().unwrap());
+
+    state
 }
