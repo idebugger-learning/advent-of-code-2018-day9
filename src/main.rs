@@ -9,8 +9,10 @@ struct GameState {
 
 impl GameState {
     fn new(players: usize) -> Self {
+        let mut marbles = Vec::with_capacity(7130700);
+        marbles.push(0);
         GameState {
-            marbles: vec![0],
+            marbles,
             current_marble: 0,
             current_marble_value: 1,
             players: vec![0; players],
@@ -50,17 +52,34 @@ impl GameState {
 }
 
 fn main() {
-    run_game(439, 71307);
+    run_game(439, 7130700);
 }
 
 fn run_game(players: usize, max_steps: u64) -> GameState {
+    // Solution on linked list would to be much faster
     let mut state = GameState::new(players);
 
-    for _ in 0..max_steps {
+    for i in 0..max_steps {
+        if i % 100 == 0 {
+            print!(
+                "{}/{} ({:.3}%)\r",
+                i,
+                max_steps,
+                i as f64 / max_steps as f64 * 100.0
+            );
+        }
         state.step();
     }
+    print!(
+        "{}/{} ({:.3}%)\r",
+        max_steps,
+        max_steps,
+        max_steps as f64 / max_steps as f64 * 100.0
+    );
+    println!();
 
     println!("Marbles: {:?}", state.marbles);
+    println!("Marbles len: {:?}", state.marbles.len());
     println!("Current: {:?}", state.current_marble);
     println!("Player: {:?}", state.current_player);
     println!("Players: {:?}", state.players);
